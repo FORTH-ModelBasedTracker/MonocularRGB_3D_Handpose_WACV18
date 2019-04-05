@@ -22,8 +22,18 @@ Subsequently we run a pretrained network that estimates the 2D location of hand 
 This work depends on a set (currently) closed source of C++ libraries developed at [CVRL-FORTH](http://www.ics.forth.gr/cvrl). We provide **Ubuntu 16.04 binaries** for these libraries. Follow the instructions [here](lib/README.md) to download them and set your environment properly.
 
 You will need **Python 3.x** to run the scripts.
+The following python libraries are required:
+
+```bash
+sudo pip3 install numpy opencv-python
+```
 
 If you use the provided pretrained network for 2D Joint estimation (by Goudis et al) you will also need to istall **tensorflow**.
+
+```bash
+pip3 install tensorflow-gpu
+```
+NOTE: The script was tested with tensorflow 1.12.0 and CUDA 9.0
 
 If you use the 2D joint estimator of Simon et al you will need to install [Openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) and [PyOpenPose](https://github.com/FORTH-ModelBasedTracker/PyOpenPose). Follow the installation instructions on these projects.
 
