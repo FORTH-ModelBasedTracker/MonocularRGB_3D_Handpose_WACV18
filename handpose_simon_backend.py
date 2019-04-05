@@ -1,7 +1,7 @@
 '''
 Adapted from the MonoHand3D codebase for the MonocularRGB_3D_Handpose project (github release)
 
-This script uses the 2D joint estimator of Gouidis et al. 
+This script uses the 2D hand joint estimation network by Simon et al. (Available through the Openpose project)
 
 @author: Paschalis Panteleris (padeler@ics.forth.gr)
 '''
@@ -28,6 +28,8 @@ from common import pipeline
 import PyMBVCore  as Core
 import PyJointTools as jt
 
+import PyOpenPose as OP
+
 from common import mva19 
 
 
@@ -40,8 +42,11 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
         print("Initialize Hand Visualizer...")
         hand_visualizer = pipeline.HandVisualizer(factory.mmanager, outSize)
 
-    print("Initialize MVA19 CVRL Hand pose net...")
-    estimator = mva19.Estimator(config["model_file"], config["input_layer"], config["output_layer"])
+    print("Initialize openpose. Net output size",outSize,"...")
+    op = OP.OpenPose((160, 160), config["handnet_dims"], tuple(outSize), "COCO", config["OPENPOSE_ROOT"] + os.sep + "models" + os.sep, 0,
+                     False, OP.OpenPose.ScaleMode.ZeroToOne, False, True)
+
+
 
     left_hand_model = config["model_left"]
     started = False
@@ -51,8 +56,8 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
     count = 0
     mbv_viz = opviz = None
     smoothing = config.get("smoothing", 0)
-    boxsize = config["boxsize"]
-    stride = config["stride"]
+    boxsize = config["handnet_dims"][0]
+    stride = 8
     peaks_thre = config["peaks_thre"]
     print("Entering main Loop.")
 
@@ -88,20 +93,16 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
             img, pad = mva19.preprocess(crop, boxsize, stride)
 
             t = time.time()
-            hm = estimator.predict(img)
-            est_ms = (time.time() - t)
-        
-            # use joint tools to recover keypoints
-            scale = float(boxsize) / float(crop.shape[0])
-            scale = stride/scale
-            ocparts = np.zeros_like(hm[...,0])
-            peaks = jt.FindPeaks(hm[...,:-1], ocparts, peaks_thre, scale, scale)
+            op.detectHands(bgr, np.array([[0,0,0,0]+bbox],dtype=np.int32))
+            op_ms = (time.time() - t) * 1000.0
 
-            # convert peaks to hand keypoints
-            hand = mva19.peaks_to_hand(peaks, x, y)
+            opviz = op.render(np.copy(bgr))
+            cv2.imshow("OPVIZ", opviz)
 
-            if hand is not None:
-                keypoints = hand
+            leftHands, rightHands = op.getKeypoints(op.KeypointType.HAND)
+
+            if rightHands is not None:
+                keypoints = rightHands[0][:,:3]
             
                 mask = keypoints[:, 2] < peaks_thre
                 keypoints[mask] = [0, 0, 1.0]
@@ -143,9 +144,9 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
         viz = np.copy(bgr)
         viz2d = np.zeros_like(bgr)
         if started and result_pose is not None:
-            viz2d = mva19.visualize_2dhand_skeleton(viz2d, hand, thre=peaks_thre)
+            viz2d = mva19.visualize_2dhand_skeleton(viz2d, keypoints, thre=peaks_thre)
             cv2.imshow("2D CNN estimation",viz2d)
-            header = "FPS OPT+VIZ %03d, OPT %03d (CNN %03d, 3D %03d)"%(1/(time.time()-st),1/(est_ms+ik_ms),1.0/est_ms, 1.0/ik_ms) 
+            header = "FPS OPT+VIZ %03d, OPT  %03fms (CNN %03fms, 3D %03fms)"%(1/(time.time()-st),(est_ms+ik_ms),est_ms, ik_ms) 
             
             if with_renderer:
                 hand_visualizer.render(pose_estimator.model, Core.ParamVector(result_pose), clb)
@@ -188,26 +189,25 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
 if __name__ == '__main__':
 
     config = {
-        "model": "models/hand_skinned.xml", "model_left": False,
+        "model": "/home/padeler/work/LevmarIK/model/hand_skinned.xml", "model_left": False,
         "model_init_pose": [-109.80840809323652, 95.70022984677065, 584.613931114289, 292.3322807284121, -1547.742897973965, -61.60146881490577, 435.33025195547793, 1.5707458637241434, 0.21444030289465843, 0.11033385117688158, 0.021952050059337137, 0.5716581133215294, 0.02969734913698679, 0.03414155945643072, 0.0, 1.1504613679382742, -0.5235922979328, 0.15626331136368257, 0.03656410417088128, 8.59579088582312e-07, 0.35789633949684985, 0.00012514308785717494, 0.005923001258945023, 0.24864102398139007, 0.2518954858979162, 0.0, 3.814694400000002e-13],
         "model_map": IK.ModelAwareBundleAdjuster.HAND_SKINNED_TO_OP_RIGHT_HAND,
+        "OPENPOSE_ROOT": os.environ["OPENPOSE_ROOT"],
 
-        "ba_iter": 100,
+        "handnet_dims": (304, 304),
+        "ba_iter": 200,
+
         "padding": 0.3,
         "minDim": 170,
+        "peaks_thre": 0.1,
 
         "smoothing": 0.2,
 
-        "model_file": "models/mobnet4f_cmu_adadelta_t1_model.pb",
-        "input_layer": "input_1",
-        "output_layer": "k2tfout_0",
-        "stride": 4,
-        "boxsize": 224,
-        "peaks_thre": 0.1,
-        
         # default bbox for the hand location 
         "default_bbox": [170,80,300,300],
+
     }
+
     
     # NOTE: You can replace the camera id with a video filename. 
     acq = OpenCVGrabber(0, calib_file="res/calib_webcam_mshd_vga.json")

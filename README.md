@@ -23,10 +23,24 @@ This work depends on a set (currently) closed source of C++ libraries developed 
 
 You will need **Python 3.x** to run the scripts.
 
-If you use the provided pretrained network for 2D Joint estimation you will also need to istall **tensorflow**.
+If you use the provided pretrained network for 2D Joint estimation (by Goudis et al) you will also need to istall **tensorflow**.
+
+If you use the 2D joint estimator of Simon et al you will need to install [Openpose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) and [PyOpenPose](https://github.com/FORTH-ModelBasedTracker/PyOpenPose). Follow the installation instructions on these projects.
+
+## Hand detector
+
+On our paper we use a retrained YOLO detector to detect hands (left, right) and heads in the input image.
+The codebase in this project does not include that part of the pipeline. 
+The example scripts use an initial bounding box and tracking to crop the user's hand in the images and pass it to the 2D joint estimator.
 
 ## Usage
 
-You can use the 3D hand pose estimation with any 2D joint estimator.
+You can use the 3D hand pose estimation with any 2D joint estimator. We provide two different example scripts:
 
-The **handpose.py** script uses the 2D joint estimator of [Gouidis et al](http://users.ics.forth.gr/~argyros/mypapers/2019_05_MVA_hand2Dkeypoints.pdf) in order to regress to the 3D pose of the hand.
+### handpose.py
+
+The **handpose.py** script uses the 2D hand joint estimator of [Gouidis et al](http://users.ics.forth.gr/~argyros/mypapers/2019_05_MVA_hand2Dkeypoints.pdf).
+
+### handpose_simon_backend.py
+
+This script uses the 2D hand joint estimator by Simon et al. You will need to properly install Openpose and PyOpenPose before running this script.
