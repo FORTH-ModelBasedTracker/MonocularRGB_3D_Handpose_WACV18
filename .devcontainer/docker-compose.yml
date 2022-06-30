@@ -1,0 +1,29 @@
+version: "2.3"
+services:
+  dev:
+    build: ..
+    runtime: nvidia
+    shm_size: 8GB
+    privileged: true
+    ipc: host
+    environment:
+      DISPLAY: $DISPLAY
+    ports:
+      - 8888:8888
+    volumes:
+      # Mounts the project folder to '/workspace'. While this file is in .devcontainer,
+      # mounts are relative to the first file in the list, which is a level up.
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/jtop.sock:/run/jtop.sock
+      - ..:/workspace:cached
+
+    devices:
+      - /dev/video0:/dev/video0
+    # [Optional] Required for ptrace-based debuggers like C++, Go, and Rust
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
