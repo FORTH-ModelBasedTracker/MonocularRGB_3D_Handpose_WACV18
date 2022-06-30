@@ -89,7 +89,7 @@ RUN git clone https://github.com/FORTH-ModelBasedTracker/PyOpenPose.git && \
     make -j`nproc` && make install
 
 ENV PYTHONPATH=/usr/local/lib:$PYTHONPATH
-ENV LD_LIBRARYc_PATH=/workspace/lib:/usr/local/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/workspace/lib:/usr/local/lib:$LD_LIBRARY_PATH
 
 # Set the workspace location (where new code will go)
 WORKDIR /workspace
