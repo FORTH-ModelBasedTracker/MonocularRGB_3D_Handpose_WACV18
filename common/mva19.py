@@ -6,7 +6,6 @@ Adapted from the MonoHand3D codebase for the MonocularRGB_3D_Handpose project (g
 
 import numpy as np
 import cv2
-import tensorflow as tf
 
 
 # find connection in the specified sequence, center 29 is in the position 15
@@ -77,6 +76,8 @@ def visualize_3dhand_skeleton(canvas, hand, stickwidth = 10, txt_size=0.5):
 
 
 def load_graph(model_file):
+    import tensorflow as tf
+
     graph = tf.Graph()
     graph_def = tf.GraphDef()
 
@@ -148,7 +149,8 @@ def update_bbox(p2d, dims, pad=0.3):
 
 class Estimator(object):
     def __init__(self, model_file, input_layer="input_1", output_layer="k2tfout_0"):
-        
+        import tensorflow as tf
+
         input_name = "import/" + input_layer
         output_name = "import/" + output_layer
 

@@ -1,2 +1,4 @@
 .vscode
 lib/*.so*
+**/*.pyc
+openpose_models

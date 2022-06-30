@@ -8,8 +8,8 @@ services:
     ipc: host
     environment:
       DISPLAY: $DISPLAY
-    ports:
-      - 8888:8888
+    # ports:
+      # - 8888:8888
     volumes:
       # Mounts the project folder to '/workspace'. While this file is in .devcontainer,
       # mounts are relative to the first file in the list, which is a level up.
