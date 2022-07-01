@@ -7,7 +7,7 @@ services:
     privileged: true
     ipc: host
     environment:
-      DISPLAY: $DISPLAY
+      DISPLAY: ${DISPLAY}
     # ports:
       # - 8888:8888
     volumes:

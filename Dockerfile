@@ -1,7 +1,8 @@
 # WACV18 Monocular 3D hand pose estimation Docker 
 
-FROM nvcr.io/nvidia/cuda:10.2-cudnn7-devel-ubuntu16.04
-
+# FROM nvcr.io/nvidia/cuda:10.2-cudnn7-devel-ubuntu16.04
+# FROM nvidia/opengl:1.2-glvnd-devel-ubuntu16.04
+FROM nvidia/cudagl:10.1-devel-ubuntu16.04
 
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
 RUN apt-get update
@@ -63,6 +64,9 @@ RUN git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose.git && \
 
 RUN apt-get install -y python3-dev python3-numpy
 
+COPY cudnn/*.deb /tmp
+RUN dpkg -i /tmp/libcudnn7_7.6.5.32-1+cuda10.1_amd64.deb /tmp/libcudnn7-dev_7.6.5.32-1+cuda10.1_amd64.deb 
+
 # Build caffee 
 COPY config/Makefile.config.caffe openpose/3rdparty/caffe/Makefile.config
 RUN cd openpose/3rdparty/caffe/ && \
@@ -90,6 +94,11 @@ RUN git clone https://github.com/FORTH-ModelBasedTracker/PyOpenPose.git && \
 
 ENV PYTHONPATH=/usr/local/lib:$PYTHONPATH
 ENV LD_LIBRARY_PATH=/workspace/lib:/usr/local/lib:$LD_LIBRARY_PATH
+
+
+# Env vars for the nvidia-container-runtime.
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES graphics,utility,compute
 
 # Set the workspace location (where new code will go)
 WORKDIR /workspace
