@@ -64,7 +64,7 @@ RUN git clone https://github.com/CMU-Perceptual-Computing-Lab/openpose.git && \
 
 RUN apt-get install -y python3-dev python3-numpy
 
-COPY cudnn/*.deb /tmp
+COPY cudnn/*.deb /tmp/
 RUN dpkg -i /tmp/libcudnn7_7.6.5.32-1+cuda10.1_amd64.deb /tmp/libcudnn7-dev_7.6.5.32-1+cuda10.1_amd64.deb 
 
 # Build caffee 
