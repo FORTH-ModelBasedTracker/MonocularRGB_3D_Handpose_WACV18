@@ -54,3 +54,23 @@ The **handpose.py** script uses the 2D hand joint estimator of [Gouidis et al](h
 ### handpose_simon_backend.py
 
 This script uses the 2D hand joint estimator by Simon et al. You will need to properly install Openpose and PyOpenPose before running this script.
+
+
+## Docker
+
+Since this is a (very) old project the only good way to test it on modern linux distros is using docker. 
+
+You need to download cudnn7 deb packages from nvidia (requires registration) and place them in the cudnn folder. 
+See [here](cudnn/README.md) for details.
+
+You can use the devcontainer with vscode or build it on CLI with docker-compose. 
+This will create an image with ubuntu16.04 and all required libraries to test the project. 
+You can build and run it from CLI using the following commands:
+
+```bash
+cd .devcontainer
+docker-compose build
+docker-compose up -d
+xhost + 
+docker exec -it devcontainer_dev_1  python3 handpose_simon_backend.py 
+```
