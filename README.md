@@ -63,6 +63,8 @@ Since this is a (very) old project the only good way to test it on modern linux 
 You need to download cudnn7 deb packages from nvidia (requires registration) and place them in the cudnn folder. 
 See [here](cudnn/README.md) for details.
 
+Finally go to the openpose_models folder and run the getModels.sh script to download the required openpose models.
+
 You can use the devcontainer with vscode or build it on CLI with docker-compose. 
 This will create an image with ubuntu16.04 and all required libraries to test the project. 
 You can build and run it from CLI using the following commands:
