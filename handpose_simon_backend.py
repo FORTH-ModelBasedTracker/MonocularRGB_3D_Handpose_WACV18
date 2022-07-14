@@ -93,16 +93,21 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
             img, pad = mva19.preprocess(crop, boxsize, stride)
 
             t = time.time()
-            op.detectHands(bgr, np.array([[0,0,0,0]+bbox],dtype=np.int32))
+            if left_hand_model:
+                op.detectHands(bgr, np.array([bbox+[0,0,0,0]],dtype=np.int32))
+            else:
+                op.detectHands(bgr, np.array([[0,0,0,0]+bbox],dtype=np.int32))
+            
             op_ms = (time.time() - t) * 1000.0
 
             opviz = op.render(np.copy(bgr))
             cv2.imshow("OPVIZ", opviz)
 
             leftHands, rightHands = op.getKeypoints(op.KeypointType.HAND)
+            hands = leftHands if left_hand_model else rightHands
 
-            if rightHands is not None:
-                keypoints = rightHands[0][:,:3]
+            if hands is not None:
+                keypoints = hands[0][:,:3]
             
                 mask = keypoints[:, 2] < peaks_thre
                 keypoints[mask] = [0, 0, 1.0]
@@ -189,9 +194,17 @@ def mono_hand_loop(acq, outSize, config, track=False, paused=False, with_rendere
 if __name__ == '__main__':
 
     config = {
+        # Right hand model config
         "model": "models/hand_skinned.xml", "model_left": False,
         "model_init_pose": [-109.80840809323652, 95.70022984677065, 584.613931114289, 292.3322807284121, -1547.742897973965, -61.60146881490577, 435.33025195547793, 1.5707458637241434, 0.21444030289465843, 0.11033385117688158, 0.021952050059337137, 0.5716581133215294, 0.02969734913698679, 0.03414155945643072, 0.0, 1.1504613679382742, -0.5235922979328, 0.15626331136368257, 0.03656410417088128, 8.59579088582312e-07, 0.35789633949684985, 0.00012514308785717494, 0.005923001258945023, 0.24864102398139007, 0.2518954858979162, 0.0, 3.814694400000002e-13],
         "model_map": IK.ModelAwareBundleAdjuster.HAND_SKINNED_TO_OP_RIGHT_HAND,
+
+        # Left hand model config
+        # "model": "models/hand_left_skinned.xml", "model_left": True,
+        # "model_init_pose": [-109.80840809323652, 95.70022984677065, 584.613931114289, 292.3322807284121, -1547.742897973965, -61.60146881490577, 435.33025195547793, 1.5707458637241434, 0.21444030289465843, 0.11033385117688158, 0.021952050059337137, 0.5716581133215294, 0.02969734913698679, 0.03414155945643072, 0.0, 1.1504613679382742, -0.5235922979328, 0.15626331136368257, 0.03656410417088128, 8.59579088582312e-07, 0.35789633949684985, 0.00012514308785717494, 0.005923001258945023, 0.24864102398139007, 0.2518954858979162, 0.0, 3.814694400000002e-13],
+        # "model_map": IK.ModelAwareBundleAdjuster.HAND_SKINNED_TO_OP_RIGHT_HAND,
+
+
         "OPENPOSE_ROOT": os.environ["OPENPOSE_ROOT"],
 
         "handnet_dims": (304, 304),
