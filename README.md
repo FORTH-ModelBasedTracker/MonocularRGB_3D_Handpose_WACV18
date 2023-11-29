@@ -70,7 +70,6 @@ This will create an image with ubuntu16.04 and all required libraries to test th
 You can build and run it from CLI using the following commands:
 
 ```bash
-cd .devcontainer
 docker-compose build
 docker-compose up -d
 xhost + 
