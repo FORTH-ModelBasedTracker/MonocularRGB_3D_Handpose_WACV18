@@ -1,7 +1,7 @@
 version: "2.3"
 services:
   dev:
-    build: ..
+    build: .
     runtime: nvidia
     shm_size: 8GB
     privileged: true
@@ -14,8 +14,9 @@ services:
       # Mounts the project folder to '/workspace'. While this file is in .devcontainer,
       # mounts are relative to the first file in the list, which is a level up.
       - /tmp/.X11-unix:/tmp/.X11-unix
+      - ${HOME}/.Xauthority:/root/.Xauthority
       - /run/jtop.sock:/run/jtop.sock
-      - ..:/workspace:cached
+      - .:/workspace:cached
 
     devices:
       - /dev/video0:/dev/video0
@@ -26,4 +27,4 @@ services:
       - seccomp:unconfined
 
     # Overrides default command so things don't shut down after the process ends.
-    command: /bin/sh -c "while sleep 1000; do :; done"
+    command: sleep infinity

@@ -1,12 +1,21 @@
 {
     "dockerComposeFile": [
-        "docker-compose.yml"
+        "../docker-compose.yml"
     ],
     "service": "dev",
     "workspaceFolder": "/workspace",
     "shutdownAction": "stopCompose",
-    "extensions": [
-        "ms-python.python",
-        "njpwerner.autodocstring"
-    ]
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "mutantdino.resourcemonitor",
+                "nvidia.nsight-vscode-edition",
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "ms-azuretools.vscode-docker",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
+            ]
+        }
+    }
 }

@@ -26,7 +26,7 @@ class OpenCVGrabber(object):
         # TODO Get these values from parameters in the constructor
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        # self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.8)
+        self.cap.set(cv2.CAP_PROP_BRIGHTNESS, 0.5)
 
     def initialize(self):
         pass
